@@ -26,7 +26,7 @@
 
                 <HBox spacing="10">
                     <Label text="Дата письма:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="letterDateField" promptText="гг-мм-дд" HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="letterDateField" promptText="дд-мм-YYYY" HBox.hgrow="ALWAYS"/>
                 </HBox>
 
                 <HBox spacing="10">
