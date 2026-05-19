@@ -229,7 +229,7 @@ src/main/resources/
 ### Предпросмотр
 
 ![Предпросмотр](images/preview.png)
-![Обновленный интерфейс](images/interface.png)
+![Обновленный интерфейс](images/inteface.png)
 
 ### Форма ввода основных данных
 
