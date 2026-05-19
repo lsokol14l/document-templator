@@ -4,24 +4,35 @@ plugins {
     id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
-dependencies {
-    implementation("org.docx4j:docx4j-core:11.4.12")
-    implementation("org.docx4j:docx4j-export-fo:11.4.12")
-    implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("ch.qos.logback:logback-classic:1.4.14")
+repositories {
+    mavenCentral()
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
-application {
-    mainClass.set("Main")
+dependencies {
+    // DOCX
+    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
+
+    // Logging
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.14")
 }
 
 javafx {
-    version = "17.0.2"
+    version = "26.0.1"
     modules = listOf("javafx.controls", "javafx.fxml")
+}
+
+application {
+    mainClass.set("by.michael.Main")
+}
+
+tasks.named<JavaExec>("run") {
+    jvmArgs = listOf("--enable-native-access=javafx.graphics")
 }
