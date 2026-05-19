@@ -7,136 +7,195 @@
     <top>
         <VBox style="-fx-padding: 15; -fx-spacing: 10; -fx-background-color: #f0f0f0;">
             <Label text="Генератор писем в формате DOCX" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Label text="Заполните информацию о письме и нажмите 'Создать документ'" style="-fx-text-fill: #666;"/>
         </VBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true">
-            <VBox spacing="15" style="-fx-padding: 20;">
-                <!-- Выбор шаблона -->
-                <HBox spacing="10">
-                    <Label text="Путь к шаблону:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="templatePathField" editable="false" HBox.hgrow="ALWAYS"/>
-                    <Button text="Выбрать" onAction="#onChooseTemplate"/>
-                </HBox>
+        <SplitPane dividerPositions="0.5" style="-fx-padding: 10;">
+            <!-- Левая часть - Форма с табами -->
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <!-- Выбор шаблона и пути -->
+                <VBox spacing="10"
+                      style="-fx-border-color: #ddd; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f9f9f9;">
+                    <Label text="Файлы" style="-fx-font-size: 13; -fx-font-weight: bold;"/>
+                    <HBox spacing="10">
+                        <Label text="Шаблон:" style="-fx-min-width: 80;"/>
+                        <TextField fx:id="templatePathField" editable="false" HBox.hgrow="ALWAYS"/>
+                        <Button text="Выбрать" onAction="#onChooseTemplate" style="-fx-padding: 5;"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Label text="Сохранить:" style="-fx-min-width: 80;"/>
+                        <TextField fx:id="outputPathField" editable="false" HBox.hgrow="ALWAYS"/>
+                        <Button text="Выбрать" onAction="#onChooseOutputPath" style="-fx-padding: 5;"/>
+                    </HBox>
+                </VBox>
 
-                <!-- Дата и номер письма -->
-                <Separator/>
-                <Label text="Реквизиты письма" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <!-- Таб-навигация -->
+                <TabPane style="-fx-padding: 0;">
+                    <!-- Таб 1: Основное -->
+                    <Tab text="Основное" closable="false">
+                        <ScrollPane fitToWidth="true">
+                            <VBox spacing="12" style="-fx-padding: 15;">
+                                <Label text="Реквизиты письма"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="Дата письма:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="letterDateField" promptText="дд-мм-YYYY" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Дата письма:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="letterDateField" promptText="дд-мм-YYYY" HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <HBox spacing="10">
-                    <Label text="Номер письма:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="letterNumberField" promptText="Введите номер" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Номер письма:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="letterNumberField" promptText="Введите номер"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Данные адресата -->
-                <Separator/>
-                <Label text="Адресат" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                                <Label text="Содержание письма"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 10 0 0 0;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="Должность:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="recipientPostField" promptText="Введите должность" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <Label text="Текст письма:" style="-fx-font-weight: bold;"/>
+                                <TextArea fx:id="letterBodyArea" wrapText="true" prefRowCount="10"
+                                          promptText="Введите основной текст письма..."
+                                          style="-fx-control-inner-background: #fafafa;"/>
+                                <Label fx:id="letterBodyErrorLabel" style="-fx-text-fill: #cc0000;"/>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
 
-                <HBox spacing="10">
-                    <Label text="Организация:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="recipientOrganizationField" promptText="Введите организацию" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                    <!-- Таб 2: Адресат -->
+                    <Tab text="Адресат" closable="false">
+                        <ScrollPane fitToWidth="true">
+                            <VBox spacing="12" style="-fx-padding: 15;">
+                                <Label text="Информация об адресате"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="recipientNameField" promptText="Введите ФИО адресата" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Должность:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="recipientPostField" promptText="Введите должность"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Приветствие -->
-                <HBox spacing="10">
-                    <Label text="Приветствие:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="greetingField" promptText="Уважаемый (-ая)..." HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Организация:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="recipientOrganizationField" promptText="Введите организацию"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Содержание письма -->
-                <Separator/>
-                <Label text="Содержание письма" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                                <HBox spacing="10">
+                                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="recipientNameField" promptText="Введите ФИО адресата"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                                <Label fx:id="recipientNameErrorLabel" style="-fx-text-fill: #cc0000;"/>
 
-                <Label text="Текст письма:"/>
-                <TextArea fx:id="letterBodyArea" wrapText="true" prefRowCount="8" promptText="Введите текст письма..."/>
+                                <HBox spacing="10">
+                                    <Label text="Приветствие:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="greetingField" promptText="Уважаемый (-ая)..."
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
 
-                <!-- Приложения -->
-                <Separator/>
-                <Label text="Приложения" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <!-- Таб 3: Приложения -->
+                    <Tab text="Приложения" closable="false">
+                        <ScrollPane fitToWidth="true">
+                            <VBox spacing="12" style="-fx-padding: 15;">
+                                <Label text="Управление приложениями"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="Заголовок:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="appendixTitleField" promptText="Название приложения" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <Label text="Новое приложение:" style="-fx-font-weight: bold;"/>
 
-                <Label text="Текст приложения:"/>
-                <TextArea fx:id="appendixContentArea" wrapText="true" prefRowCount="5" promptText="Введите текст приложения..."/>
+                                <HBox spacing="10">
+                                    <Label text="Заголовок:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="appendixTitleField" promptText="Название приложения"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <HBox spacing="10">
-                    <Label text="Кол-во страниц:" style="-fx-min-width: 120;"/>
-                    <Spinner fx:id="appendixPageCountSpinner" prefWidth="80"/>
-                    <Button text="Добавить приложение" style="-fx-padding: 8;" onAction="#onAddAppendix"/>
-                </HBox>
+                                <Label text="Текст приложения:"/>
+                                <TextArea fx:id="appendixContentArea" wrapText="true" prefRowCount="6"
+                                          promptText="Введите текст приложения..."/>
 
-                <Label text="Список приложений:"/>
-                <ListCell>
-                    <ListView fx:id="appendixListView" prefHeight="150"/>
-                </ListCell>
+                                <HBox spacing="10">
+                                    <Label text="Кол-во страниц:" style="-fx-min-width: 120;"/>
+                                    <Spinner fx:id="appendixPageCountSpinner" prefWidth="80"/>
+                                    <Button text="Добавить" style="-fx-padding: 8;" onAction="#onAddAppendix"
+                                            HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Данные отправителя -->
-                <Separator/>
-                <Label text="Отправитель" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                                <Label text="Список приложений:" style="-fx-font-weight: bold; -fx-padding: 10 0 0 0;"/>
+                                <ListView fx:id="appendixListView" prefHeight="120" style="-fx-font-size: 11;"/>
+                                <Label text="(Двойной клик для удаления)"
+                                       style="-fx-text-fill: #999; -fx-font-size: 10;"/>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
 
-                <HBox spacing="10">
-                    <Label text="Должность:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="senderPostField" promptText="Должность отправителя" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                    <!-- Таб 4: Отправитель -->
+                    <Tab text="Отправитель" closable="false">
+                        <ScrollPane fitToWidth="true">
+                            <VBox spacing="12" style="-fx-padding: 15;">
+                                <Label text="Информация об отправителе"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="senderNameField" promptText="ФИО отправителя" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Должность:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="senderPostField" promptText="Должность отправителя"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Данные исполнителя -->
-                <Separator/>
-                <Label text="Исполнитель" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                                <HBox spacing="10">
+                                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="senderNameField" promptText="ФИО отправителя"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <HBox spacing="10">
-                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="executorNameField" promptText="ФИО исполнителя" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <Label text="Информация об исполнителе"
+                                       style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 10 0 0 0;"/>
+                                <Separator/>
 
-                <HBox spacing="10">
-                    <Label text="Телефон:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="executorPhoneField" promptText="Телефон исполнителя" HBox.hgrow="ALWAYS"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="ФИО:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="executorNameField" promptText="ФИО исполнителя"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
 
-                <!-- Путь сохранения -->
-                <Separator/>
-                <HBox spacing="10">
-                    <Label text="Сохранить как:" style="-fx-min-width: 120;"/>
-                    <TextField fx:id="outputPathField" editable="false" HBox.hgrow="ALWAYS"/>
-                    <Button text="Выбрать" onAction="#onChooseOutputPath"/>
-                </HBox>
+                                <HBox spacing="10">
+                                    <Label text="Телефон:" style="-fx-min-width: 120;"/>
+                                    <TextField fx:id="executorPhoneField" promptText="Телефон исполнителя"
+                                               HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
+                </TabPane>
 
                 <!-- Кнопки действий -->
-                <Separator/>
-                <HBox spacing="10" alignment="CENTER">
-                    <Button text="Создать документ" style="-fx-padding: 10; -fx-font-size: 13;"
+                <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10 0;">
+                    <Button text="Создать документ"
+                            style="-fx-padding: 12 30; -fx-font-size: 13; -fx-font-weight: bold; -fx-background-color: #4CAF50; -fx-text-fill: white;"
                             onAction="#onGenerateDocument" prefWidth="200"/>
-                    <Button text="Очистить" style="-fx-padding: 10;" onAction="#onClear"/>
+                    <Button text="Очистить" style="-fx-padding: 12 20;" onAction="#onClear"/>
                 </HBox>
 
                 <!-- Статус -->
-                <Separator/>
-                <Label fx:id="statusLabel" text="Статус: готово" style="-fx-text-fill: #0066cc;"/>
+                <Label fx:id="statusLabel" text="Статус: готово"
+                       style="-fx-text-fill: #0066cc; -fx-padding: 5; -fx-border-color: #ddd; -fx-border-radius: 3; -fx-padding: 8;"/>
             </VBox>
-        </ScrollPane>
+
+            <!-- Правая часть - Предпросмотр -->
+            <VBox spacing="10" style="-fx-padding: 10; -fx-border-width: 0 0 0 1; -fx-border-color: #ddd;">
+                <Label text="Предпросмотр письма" style="-fx-font-size: 13; -fx-font-weight: bold;"/>
+                <TextArea fx:id="previewArea" wrapText="true"
+                          style="-fx-control-inner-background: #f5f5f5; -fx-font-family: 'Courier New'; -fx-font-size: 10;"
+                          editable="false" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            </VBox>
+        </SplitPane>
     </center>
 </BorderPane>
