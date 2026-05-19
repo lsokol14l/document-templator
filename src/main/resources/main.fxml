@@ -67,9 +67,27 @@
                 <TextArea fx:id="letterBodyArea" wrapText="true" prefRowCount="8" promptText="Введите текст письма..."/>
 
                 <!-- Приложения -->
+                <Separator/>
+                <Label text="Приложения" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+                <HBox spacing="10">
+                    <Label text="Заголовок:" style="-fx-min-width: 120;"/>
+                    <TextField fx:id="appendixTitleField" promptText="Название приложения" HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <Label text="Текст приложения:"/>
+                <TextArea fx:id="appendixContentArea" wrapText="true" prefRowCount="5" promptText="Введите текст приложения..."/>
+
+                <HBox spacing="10">
+                    <Label text="Кол-во страниц:" style="-fx-min-width: 120;"/>
+                    <Spinner fx:id="appendixPageCountSpinner" prefWidth="80"/>
+                    <Button text="Добавить приложение" style="-fx-padding: 8;" onAction="#onAddAppendix"/>
+                </HBox>
+
                 <Label text="Список приложений:"/>
-                <TextArea fx:id="appendixListArea" wrapText="true" prefRowCount="4"
-                          promptText="Перечислите приложения..."/>
+                <ListCell>
+                    <ListView fx:id="appendixListView" prefHeight="150"/>
+                </ListCell>
 
                 <!-- Данные отправителя -->
                 <Separator/>

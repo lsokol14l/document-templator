@@ -2,11 +2,15 @@ package by.michael;
 
 import by.michael.formatters.DateFormatter;
 import by.michael.formatters.PhoneFormatter;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainController {
   @FXML private TextField templatePathField;
@@ -23,7 +27,12 @@ public class MainController {
 
   // Содержание
   @FXML private TextArea letterBodyArea;
-  @FXML private TextArea appendixListArea;
+
+  // Приложения
+  @FXML private TextField appendixTitleField;
+  @FXML private TextArea appendixContentArea;
+  @FXML private Spinner<Integer> appendixPageCountSpinner;
+  @FXML private ListView<Appendix> appendixListView;
 
   // Отправитель
   @FXML private TextField senderPostField;
@@ -38,10 +47,31 @@ public class MainController {
   @FXML private Label statusLabel;
 
   private DocumentService documentService;
+  private ObservableList<Appendix> appendices;
 
   @FXML
   public void initialize() {
     documentService = new DocumentService();
+
+    // Инициализируем список приложений
+    appendices = FXCollections.observableArrayList();
+    appendixListView.setItems(appendices);
+
+    // Инициализируем Spinner для количества страниц
+    SpinnerValueFactory<Integer> valueFactory =
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1);
+    appendixPageCountSpinner.setValueFactory(valueFactory);
+
+    // Добавляем кнопку удаления при двойном клике
+    appendixListView.setOnMouseClicked(event -> {
+      if (event.getClickCount() == 2) {
+        Appendix selected = appendixListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+          appendices.remove(selected);
+          updateStatus("Приложение удалено", false);
+        }
+      }
+    });
 
     // Применяем форматеры
     letterDateField.setTextFormatter(DateFormatter.createDateFormatter());
@@ -66,6 +96,33 @@ public class MainController {
   }
 
   @FXML
+  private void onAddAppendix() {
+    String title = appendixTitleField.getText().trim();
+    String content = appendixContentArea.getText().trim();
+    int pageCount = appendixPageCountSpinner.getValue();
+
+    if (title.isEmpty()) {
+      updateStatus("Ошибка: введите заголовок приложения", true);
+      return;
+    }
+
+    if (content.isEmpty()) {
+      updateStatus("Ошибка: введите текст приложения", true);
+      return;
+    }
+
+    Appendix appendix = new Appendix(title, content, pageCount);
+    appendices.add(appendix);
+
+    // Очищаем поля
+    appendixTitleField.clear();
+    appendixContentArea.clear();
+    appendixPageCountSpinner.getValueFactory().setValue(1);
+
+    updateStatus("Приложение добавлено", false);
+  }
+
+  @FXML
   private void onGenerateDocument() {
     // Проверяем заполненность обязательных полей
     if (templatePathField.getText().isEmpty()) {
@@ -82,7 +139,7 @@ public class MainController {
     }
 
     try {
-      // Подготавливаем словарь замен для нового шаблона
+      // Подготавливаем словарь замен
       java.util.Map<String, String> replacements = new java.util.HashMap<>();
 
       // Реквизиты письма
@@ -97,7 +154,6 @@ public class MainController {
 
       // Содержание
       replacements.put("{LETTER_BODY}", letterBodyArea.getText());
-      replacements.put("{APPENDIX_LIST}", appendixListArea.getText());
 
       // Отправитель
       replacements.put("{SENDER_POST}", senderPostField.getText());
@@ -107,11 +163,11 @@ public class MainController {
       replacements.put("{EXECUTOR_NAME}", executorNameField.getText());
       replacements.put("{EXECUTOR_PHONE}", executorPhoneField.getText());
 
-      // Генерируем документ
+      // Генерируем документ с приложениями
       String templatePath = templatePathField.getText();
       String outputPath = outputPathField.getText();
 
-      documentService.generateDocument(templatePath, outputPath, replacements);
+      documentService.generateDocument(templatePath, outputPath, replacements, new ArrayList<>(appendices));
 
       updateStatus("✓ Документ успешно создан: " + new File(outputPath).getName(), false);
 
@@ -134,7 +190,10 @@ public class MainController {
     recipientNameField.clear();
     greetingField.clear();
     letterBodyArea.clear();
-    appendixListArea.clear();
+    appendixTitleField.clear();
+    appendixContentArea.clear();
+    appendixPageCountSpinner.getValueFactory().setValue(1);
+    appendices.clear();
     senderPostField.clear();
     senderNameField.clear();
     executorNameField.clear();
@@ -146,14 +205,18 @@ public class MainController {
   private File openFileChooser(String title, String extension, String description) {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(title);
-    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, extension));
+    fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter(description, extension)
+    );
     return fileChooser.showOpenDialog(new Stage());
   }
 
   private File saveFileChooser(String title, String extension, String description) {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle(title);
-    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, extension));
+    fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter(description, extension)
+    );
     fileChooser.setInitialFileName("письмо.docx");
     return fileChooser.showSaveDialog(new Stage());
   }

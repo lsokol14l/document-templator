@@ -8,9 +8,10 @@ import org.apache.poi.xwpf.usermodel.*;
 
 public class DocumentService {
 
-  /** Генерирует документ на основе шаблона с заменой плейсхолдеров */
+  /** Генерирует документ на основе шаблона с заменой плейсхолдеров и добавлением приложений */
   public void generateDocument(
-      String templatePath, String outputPath, Map<String, String> replacements) throws Exception {
+          String templatePath, String outputPath, Map<String, String> replacements, List<Appendix> appendices)
+          throws Exception {
 
     try (FileInputStream inputStream = new FileInputStream(templatePath)) {
       // Загружаем исходный шаблон
@@ -39,6 +40,11 @@ public class DocumentService {
         }
       }
 
+      // Добавляем приложения если они есть
+      if (!appendices.isEmpty()) {
+        addAppendices(document, appendices);
+      }
+
       // Сохраняем результат
       try (FileOutputStream outputStream = new FileOutputStream(outputPath)) {
         document.write(outputStream);
@@ -48,9 +54,50 @@ public class DocumentService {
     }
   }
 
+  /** Добавляет приложения в документ */
+  private void addAppendices(XWPFDocument document, List<Appendix> appendices) {
+    // Добавляем разделитель
+    XWPFParagraph separatorPara = document.createParagraph();
+    separatorPara.setPageBreak(true);
+
+    for (int i = 0; i < appendices.size(); i++) {
+      Appendix appendix = appendices.get(i);
+
+      // Заголовок приложения ("Приложение" или "Приложение 1", "Приложение 2", ...)
+      XWPFParagraph appendixLabelPara = document.createParagraph();
+      appendixLabelPara.setAlignment(ParagraphAlignment.RIGHT);
+      XWPFRun labelRun = appendixLabelPara.createRun();
+
+      if (appendices.size() == 1) {
+        labelRun.setText("Приложение");
+      } else {
+        labelRun.setText("Приложение " + (i + 1));
+      }
+      labelRun.setBold(true);
+
+      // Название приложения (по центру)
+      XWPFParagraph titlePara = document.createParagraph();
+      titlePara.setAlignment(ParagraphAlignment.CENTER);
+      XWPFRun titleRun = titlePara.createRun();
+      titleRun.setText(appendix.getTitle());
+      titleRun.setBold(true);
+
+      // Текст приложения
+      XWPFParagraph contentPara = document.createParagraph();
+      XWPFRun contentRun = contentPara.createRun();
+      contentRun.setText(appendix.getContent());
+
+      // Добавляем разрыв страницы между приложениями (если не последнее)
+      if (i < appendices.size() - 1) {
+        XWPFParagraph breakPara = document.createParagraph();
+        breakPara.setPageBreak(true);
+      }
+    }
+  }
+
   /** Заменяет плейсхолдеры в абзаце */
   private void replacePlaceholdersInParagraph(
-      XWPFParagraph paragraph, Map<String, String> replacements) {
+          XWPFParagraph paragraph, Map<String, String> replacements) {
     List<XWPFRun> runs = paragraph.getRuns();
 
     for (int i = 0; i < runs.size(); i++) {
